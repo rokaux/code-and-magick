@@ -378,56 +378,58 @@
      * Отрисовка экрана паузы.
      */
     _drawPauseScreen: function() {
-      var message = this.ctx;
       var messageW = 310;
+      switch (this.state.currentStatus) {
+        case Verdict.WIN:
+          this.drawMessage('Вы выиграли!. Скорее всего Вам просто повезло. Хотите убедить меня в обратном? Нажмите пробел.', messageW);
+          break;
+        case Verdict.FAIL:
+          this.drawMessage('Вы проиграли!. Но не расстраивайтесь, Вы можете все исправить и начать заново! Нажмите пробел.', messageW);
+          break;
+        case Verdict.PAUSE:
+          this.drawMessage('Игра приостановлена. Хотите продолжить? Для этого нажмите пробел. Удачи!', messageW);
+          break;
+        case Verdict.INTRO:
+          this.drawMessage('Добро пожаловать в Игру! Я выполняю любые ваши капризы: бегаю, прыгаю, стреляю фаерболом. Нажмите пробел, чтобы начать.', messageW);
+          break;
+      }
+    },
+
+    /**
+     * Функция отрисовывает сообщение и автоматически переносит текст на новую строку.
+     */
+    drawMessage: function(text, maxWidth) {
+      var message = this.ctx;
       var messageH = 150;
-      var messageX = (this.canvas.width - messageW) / 2;
+      var messageX = (this.canvas.width - maxWidth) / 2;
       var messageY = (this.canvas.height - messageH) / 2;
       var textX = messageX + 12;
       var textY = messageY + 18;
-      var textFont = '16px PT Mono';
-      var lineHeight = parseInt(textFont, 10) * 1.5;
-      /**
-       * Функция отрисовывает сообщение и автоматически переносит текст на новую строку.
-       */
-      function drawMessage(text, maxWidth) {
-        var words = text.split(' ');
-        var line = '';
-        message.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        message.fillRect(messageX + 10, messageY + 10, messageW, messageH);
-        message.fillStyle = '#FFFFFF';
-        message.fillRect(messageX, messageY, messageW, messageH);
-        message.fillStyle = '#000000';
-        message.font = textFont;
-        message.textBaseline = 'hanging';
-        for(var n = 0; n < words.length; n++) {
-          var testLine = line + words[n] + ' ';
-          var metrics = message.measureText(testLine);
-          var testWidth = metrics.width;
-          if (testWidth > maxWidth && n > 0) {
-            message.fillText(line, textX, textY);
-            line = words[n] + ' ';
-            textY += lineHeight;
-          } else {
-            line = testLine;
-          }
+      var fontSize = 16;
+      var textFont = fontSize + 'px PT Mono';
+      var lineHeight = fontSize * 1.5;
+      var words = text.split(' ');
+      var line = '';
+      message.fillStyle = 'rgba(0, 0, 0, 0.7)';
+      message.fillRect(messageX + 10, messageY + 10, maxWidth, messageH);
+      message.fillStyle = '#FFFFFF';
+      message.fillRect(messageX, messageY, maxWidth, messageH);
+      message.fillStyle = '#000000';
+      message.font = textFont;
+      message.textBaseline = 'hanging';
+      for(var n = 0; n < words.length; n++) {
+        var testLine = line + words[n] + ' ';
+        var metrics = message.measureText(testLine);
+        var testWidth = metrics.width;
+        if (testWidth > maxWidth && n > 0) {
+          message.fillText(line, textX, textY);
+          line = words[n] + ' ';
+          textY += lineHeight;
+        } else {
+          line = testLine;
         }
-        message.fillText(line, textX, textY);
       }
-      switch (this.state.currentStatus) {
-        case Verdict.WIN:
-          drawMessage('Вы выиграли!. Скорее всего Вам просто повезло. Хотите убедить меня в обратном? Нажмите пробел.', messageW);
-          break;
-        case Verdict.FAIL:
-          drawMessage('Вы проиграли!. Но не расстраивайтесь, Вы можете все исправить и начать заново! Нажмите пробел.', messageW);
-          break;
-        case Verdict.PAUSE:
-          drawMessage('Игра приостановлена. Хотите продолжить? Для этого нажмите пробел. Удачи!', messageW);
-          break;
-        case Verdict.INTRO:
-          drawMessage('Добро пожаловать в Игру! Я выполняю любые ваши капризы: бегаю, прыгаю, стреляю фаерболом. Нажмите пробел, чтобы начать.', messageW);
-          break;
-      }
+      message.fillText(line, textX, textY);
     },
 
     /**
