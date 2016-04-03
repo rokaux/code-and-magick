@@ -7,15 +7,24 @@
   var formOpenButton = document.querySelector('.reviews-controls-new');
   var formCloseButton = document.querySelector('.review-form-close');
 
-  var reviewForm = document.querySelector('.review-form');
+  var reviewForm = formContainer.querySelector('.review-form');
   var reviewName = reviewForm.elements['review-name'];
   var reviewText = reviewForm.elements['review-text'];
-  var reviewLabels = document.querySelector('.review-fields');
-  var reviewNameLabel = document.querySelector('.review-fields-name');
-  var reviewTextLabel = document.querySelector('.review-fields-text');
-  var reviewMarks = document.querySelector('.review-form-group-mark');
+  var reviewLabels = reviewForm.querySelector('.review-fields');
+  var reviewNameLabel = reviewForm.querySelector('.review-fields-name');
+  var reviewTextLabel = reviewForm.querySelector('.review-fields-text');
+  var reviewMarks = reviewForm.querySelector('.review-form-group-mark');
   var reviewMark = reviewMarks.elements['review-mark'];
-  var reviewSubmit = document.querySelector('.review-submit');
+  var reviewSubmit = reviewForm.querySelector('.review-submit');
+
+  /*
+  * Вставка сообщений об ошибке в DOM документа
+  */
+  reviewName.insertAdjacentHTML('afterend', '<p style="color: red;" id="name-error"></p>');
+  reviewText.insertAdjacentHTML('afterend', '<p style="color: red;" id="text-error"></p>');
+
+  var reviewNameError = reviewForm.querySelector('#name-error');
+  var reviewTextError = reviewForm.querySelector('#text-error');
 
   /*
   * Функция, задающая основные ограничения валидации
@@ -26,28 +35,26 @@
 
     var reviewNameStatus = reviewName.validity.valid;
     var reviewTextStatus = reviewText.validity.valid;
-    var reviewNameError = '<p style="color: red;">' + reviewName.validationMessage + '</p>';
-    var reviewTextError = '<p style="color: red;">' + reviewText.validationMessage + '</p>';
 
     if(reviewNameStatus) {
       reviewName.onchange = function() {
-        return;
+        reviewNameError.textContent = '';
       };
       reviewNameLabel.classList.add('invisible');
     } else {
       reviewName.onchange = function() {
-        this.insertAdjacentHTML('afterend', reviewNameError);
+        reviewNameError.textContent = this.validationMessage;
       };
       reviewNameLabel.classList.remove('invisible');
     }
     if(reviewTextStatus) {
       reviewText.onchange = function() {
-        return;
+        reviewTextError.textContent = '';
       };
       reviewTextLabel.classList.add('invisible');
     } else {
       reviewText.onchange = function() {
-        this.insertAdjacentHTML('afterend', reviewTextError);
+        reviewTextError.textContent = this.validationMessage;
       };
       reviewTextLabel.classList.remove('invisible');
     }
@@ -70,14 +77,13 @@
   * Функция обработки события изменения оценки
   */
   reviewMarks.onchange = function() {
-    reviewText.required = reviewMark.value < MIN_RATE;
     formValidation();
   };
 
   /*
-  * Функция обработки события взаимодействия каким-либо полем формы
+  * Функция обработки события ввода данных в любое поле формы
   */
-  reviewForm.onkeyup = function() {
+  reviewForm.oninput = function() {
     formValidation();
   };
 
