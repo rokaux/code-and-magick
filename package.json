@@ -15,7 +15,8 @@
   "dependencies": {
     "eslint": "^2.4.0",
     "webpack": "^1.12.14",
-    "webpack-dev-server": "^1.14.1"
+    "webpack-dev-server": "^1.14.1",
+    "browser-cookies": "1.0.3"
   },
   "scripts": {
     "build": "webpack --config webpack.config.js",
