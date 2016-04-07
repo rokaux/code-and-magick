@@ -18,6 +18,11 @@
   var reviewSubmit = reviewForm.querySelector('.review-submit');
 
   /*
+  * Подключение библиотеки Browser Cookies
+  */
+  var browserCookies = require('browser-cookies');
+
+  /*
   * Вставка сообщений об ошибке в DOM документа
   */
   reviewName.insertAdjacentHTML('afterend', '<p style="color: red;" id="name-error"></p>');
@@ -66,6 +71,12 @@
       reviewLabels.classList.remove('invisible');
     }
   };
+  /*
+  * Подставляем значения Оценка и Имя в форму
+  * Значения берем из cookies, записанных в момент отправки формы
+  */
+  reviewMark.value = browserCookies.get('reviewMark') || reviewMark.value;
+  reviewName.value = browserCookies.get('reviewName') || reviewName.value;
 
   /*
   * Инициализация функции formValidation() на загрузку старницы.
@@ -85,6 +96,32 @@
   */
   reviewForm.oninput = function() {
     formValidation();
+  };
+
+  /*
+  * Отправка формы и предварительная запись данных из формы в cookies
+  */
+  reviewForm.onsubmit = function(evt) {
+    evt.preventDefault();
+
+    var now = new Date();
+    var myBirthday = new Date(now.getFullYear(), 7, 2);
+    var dateDifference = now.valueOf() - myBirthday.valueOf();
+    var year = 1000 * 60 * 60 * 24 * 365;
+
+    if(dateDifference > 0) {
+      dateDifference = year - dateDifference;
+    } else if (dateDifference < 0) {
+      dateDifference = dateDifference * -1;
+    } else {
+      dateDifference = year;
+    }
+
+    var formattedDateToExpire = new Date(now.valueOf() + dateDifference).toUTCString();
+
+    browserCookies.set('reviewMark', reviewMark.value, { expires: formattedDateToExpire });
+    browserCookies.set('reviewName', reviewName.value, { expires: formattedDateToExpire });
+    this.submit();
   };
 
   formOpenButton.onclick = function(evt) {
