@@ -7,6 +7,14 @@
   var reviewsContainer = reviewsSection.querySelector('.reviews-list');
   var templateElement = document.querySelector('#review-template');
   var elementToClone;
+  var reviews = [];
+  var Filter = {
+    'ALL': 'reviews-all',
+    'RECENT': 'reviews-recent',
+    'GOOD': 'reviews-good',
+    'BAD': 'reviews-bad',
+    'POPULAR': 'reviews-popular'
+  };
 
   /*
   * Скрываем филтры до загрузки списка отзывов
@@ -24,10 +32,27 @@
   }
 
   /*
-  * Константа - время тайиаута
+  * Константа - время таймаута загрузки картинок
   */
   var IMAGE_LOAD_TIMEOUT = 5000;
 
+
+  /*
+  * Константа - время таймаута загрузки отзывов
+  */
+  var REVIEWS_LOAD_TIMEOUT = 5000;
+
+
+  /*
+  * Константа - ссылка на файл с отзывами
+  */
+  var REVIEWS_LOAD_URL = '//o0.github.io/assets/json/reviews.json';
+
+
+  /*
+  * Константа - фильтр по умолчанию
+  */
+  var DEFAULT_FILTER = Filter.ALL;
   /*
   * Функция, которая создает DOM-элемент отзыва и добавляет его на страницу
   */
@@ -61,15 +86,123 @@
   };
 
   /*
-  * Функция, которая в цикле запускает функцию добавления отзыва на страницу
+  * Функция отрисовки отзывов, которая в цикле
+  * запускает функцию добавления отзыва на страницу
   */
-  window.reviews.forEach(function(review) {
-    getReviewElement(review, reviewsContainer);
-  });
+  var renderReviews = function(loadedReviews) {
+    reviewsContainer.innerHTML = '';
+
+    loadedReviews.forEach(function(review) {
+      getReviewElement(review, reviewsContainer);
+    });
+  };
 
   /*
-  * Показываем фильтры после загрузки отзывов
+  * Функция, которая возвращает список отфильтрованных
+  * по определенному критерию отзывов
   */
-  reviewsFilters.classList.remove('invisible');
+  var getFilteredReviews = function(reviewsList, filter) {
+    var reviewsToFilter = reviewsList.slice(0);
 
+    switch (filter) {
+      case Filter.ALL:
+        reviewsToFilter = reviews;
+        break;
+      case Filter.RECENT:
+        reviewsToFilter.sort(function(a, b) {
+          return new Date(b.date) - new Date(a.date);
+        });
+        var mostRecentDate = new Date(reviewsToFilter[0].date);
+        var filterDate = mostRecentDate.valueOf() - (14 * 24 * 60 * 60 * 1000);
+
+        reviewsToFilter = reviewsToFilter.filter(function(review) {
+          return new Date(review.date).valueOf() > filterDate;
+        });
+        break;
+      case Filter.GOOD:
+        reviewsToFilter.sort(function(a, b) {
+          return b.rating - a.rating;
+        });
+        reviewsToFilter = reviewsToFilter.filter(function(review) {
+          return review.rating >= 3;
+        });
+        break;
+      case Filter.BAD:
+        reviewsToFilter.sort(function(a, b) {
+          return a.rating - b.rating;
+        });
+        reviewsToFilter = reviewsToFilter.filter(function(review) {
+          return review.rating <= 2;
+        });
+        break;
+      case Filter.POPULAR:
+        reviewsToFilter.sort(function(a, b) {
+          return b.review_usefulness - a.review_usefulness;
+        });
+        break;
+      default:
+        reviewsToFilter = reviews;
+        break;
+    }
+    return reviewsToFilter;
+  };
+
+  /*
+  * Функция в зависимости от переданного параметра (id)
+  * фильтрует список отзывов
+  */
+  var applyFilter = function(filter) {
+    var filteredReviews = getFilteredReviews(reviews, filter);
+    renderReviews(filteredReviews);
+  };
+
+  /*
+  * Функция показывает блок с фильтрами
+  * и добавляет обработчик клика по фильтру
+  */
+  var applyFiltration = function() {
+    reviewsFilters.classList.remove('invisible');
+    var filters = reviewsSection.querySelectorAll('.reviews-filter');
+    for (var i = 0; i < filters.length; i++) {
+      filters[i].onclick = function(evt) {
+        applyFilter(evt.target.id);
+      };
+    }
+  };
+
+  /*
+  * Получаем список отелей с сервера по XHR
+  */
+  var getReviews = function(callback) {
+    var xhr = new XMLHttpRequest();
+
+    xhr.timeout = REVIEWS_LOAD_TIMEOUT;
+
+    xhr.onload = function(evt) {
+      var loadedData = JSON.parse(evt.target.response);
+      reviewsSection.classList.remove('reviews-list-loading');
+      callback(loadedData);
+    };
+
+    xhr.onerror = function() {
+      reviewsSection.classList.remove('reviews-list-loading');
+      reviewsSection.classList.add('reviews-load-failure');
+    };
+
+    xhr.ontimeout = function() {
+      reviewsSection.classList.remove('reviews-list-loading');
+      reviewsSection.classList.add('reviews-load-failure');
+    };
+
+    xhr.open('GET', REVIEWS_LOAD_URL);
+    xhr.send();
+
+    reviewsSection.classList.add('reviews-list-loading');
+  };
+
+  getReviews(function(loadedReviews) {
+    reviews = loadedReviews;
+    applyFiltration();
+    applyFilter(DEFAULT_FILTER);
+  });
 })();
