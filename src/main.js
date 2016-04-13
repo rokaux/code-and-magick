@@ -9,3 +9,8 @@ require('./form');
  * Подключение файла game.js
  */
 require('./game');
+
+/**
+ * Подключение файла reviews.js
+ */
+require('./reviews');
