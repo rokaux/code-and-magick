@@ -120,19 +120,19 @@
         });
         break;
       case Filter.GOOD:
-        reviewsToFilter.sort(function(a, b) {
-          return b.rating - a.rating;
-        });
         reviewsToFilter = reviewsToFilter.filter(function(review) {
           return review.rating >= 3;
         });
+        reviewsToFilter.sort(function(a, b) {
+          return b.rating - a.rating;
+        });
         break;
       case Filter.BAD:
-        reviewsToFilter.sort(function(a, b) {
-          return a.rating - b.rating;
-        });
         reviewsToFilter = reviewsToFilter.filter(function(review) {
           return review.rating <= 2;
+        });
+        reviewsToFilter.sort(function(a, b) {
+          return a.rating - b.rating;
         });
         break;
       case Filter.POPULAR:
@@ -179,9 +179,11 @@
     xhr.timeout = REVIEWS_LOAD_TIMEOUT;
 
     xhr.onload = function(evt) {
-      var loadedData = JSON.parse(evt.target.response);
-      reviewsSection.classList.remove('reviews-list-loading');
-      callback(loadedData);
+      if (this.status === 200) {
+        var loadedData = JSON.parse(evt.target.response);
+        reviewsSection.classList.remove('reviews-list-loading');
+        callback(loadedData);
+      }
     };
 
     xhr.onerror = function() {
