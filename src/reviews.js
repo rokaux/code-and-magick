@@ -6,8 +6,10 @@
   var reviewsFilters = reviewsSection.querySelector('.reviews-filter');
   var reviewsContainer = reviewsSection.querySelector('.reviews-list');
   var templateElement = document.querySelector('#review-template');
+  var loadMoreBtn = reviewsSection.querySelector('.reviews-controls-more');
   var elementToClone;
   var reviews = [];
+  var filteredReviews = [];
   var Filter = {
     'ALL': 'reviews-all',
     'RECENT': 'reviews-recent',
@@ -36,23 +38,31 @@
   */
   var IMAGE_LOAD_TIMEOUT = 5000;
 
-
   /*
   * Константа - время таймаута загрузки отзывов
   */
   var REVIEWS_LOAD_TIMEOUT = 5000;
-
 
   /*
   * Константа - ссылка на файл с отзывами
   */
   var REVIEWS_LOAD_URL = '//o0.github.io/assets/json/reviews.json';
 
-
   /*
   * Константа - фильтр по умолчанию
   */
   var DEFAULT_FILTER = Filter.ALL;
+
+  /*
+  * Константа - количество отзывов на страницу
+  */
+  var PAGE_SIZE = 3;
+
+  /*
+  * Номер отрисованной страницы (значение по умолчанию, т.е. первая страница)
+  */
+  var pageNumber = 0;
+
   /*
   * Функция, которая создает DOM-элемент отзыва и добавляет его на страницу
   */
@@ -89,10 +99,15 @@
   * Функция отрисовки отзывов, которая в цикле
   * запускает функцию добавления отзыва на страницу
   */
-  var renderReviews = function(loadedReviews) {
-    reviewsContainer.innerHTML = '';
+  var renderReviews = function(loadedReviews, page, replace) {
+    if (replace) {
+      reviewsContainer.innerHTML = '';
+    }
 
-    loadedReviews.forEach(function(review) {
+    var from = page * PAGE_SIZE;
+    var to = from + PAGE_SIZE;
+
+    loadedReviews.slice(from, to).forEach(function(review) {
       getReviewElement(review, reviewsContainer);
     });
   };
@@ -152,8 +167,9 @@
   * фильтрует список отзывов
   */
   var applyFilter = function(filter) {
-    var filteredReviews = getFilteredReviews(reviews, filter);
-    renderReviews(filteredReviews);
+    filteredReviews = getFilteredReviews(reviews, filter);
+    pageNumber = 0;
+    renderReviews(filteredReviews, pageNumber, true);
   };
 
   /*
@@ -162,12 +178,11 @@
   */
   var applyFiltration = function() {
     reviewsFilters.classList.remove('invisible');
-    var filters = reviewsSection.querySelectorAll('.reviews-filter');
-    for (var i = 0; i < filters.length; i++) {
-      filters[i].onclick = function(evt) {
+    reviewsFilters.addEventListener('click', function(evt) {
+      if (evt.target.hasAttribute('name')) {
         applyFilter(evt.target.id);
-      };
-    }
+      }
+    });
   };
 
   /*
@@ -202,9 +217,30 @@
     reviewsSection.classList.add('reviews-list-loading');
   };
 
+  /*
+  * Проверяем есть ли сдледующая страница
+  */
+  var isNextPageAvailable = function(reviewsList, page, pageSize) {
+    return page < Math.floor(reviewsList.length / pageSize);
+  };
+
+  /*
+  * Подгружаем список отзывов постранично
+  */
+  var loadMoreReviews = function() {
+    loadMoreBtn.classList.remove('invisible');
+    loadMoreBtn.addEventListener('click', function() {
+      if (isNextPageAvailable(reviews, pageNumber, PAGE_SIZE)) {
+        pageNumber++;
+        renderReviews(filteredReviews, pageNumber);
+      }
+    });
+  };
+
   getReviews(function(loadedReviews) {
     reviews = loadedReviews;
     applyFiltration();
     applyFilter(DEFAULT_FILTER);
+    loadMoreReviews();
   });
 })();
