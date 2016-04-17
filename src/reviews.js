@@ -64,13 +64,12 @@
   var pageNumber = 0;
 
   /*
-  * Функция, которая создает DOM-элемент отзыва и добавляет его на страницу
+  * Функция, которая создает DOM-элемент, наполняет его данными и возвращает созданный элемент
   */
-  var getReviewElement = function(data, container) {
+  var getReviewElement = function(data) {
     var element = elementToClone.cloneNode(true);
     element.querySelector('.review-rating').textContent = data.rating;
     element.querySelector('.review-text').textContent = data.description;
-    container.appendChild(element);
 
     var userAvatar = new Image();
     var userAvatarLoadTimeout;
@@ -96,6 +95,14 @@
   };
 
   /*
+  * Функция, которая добавляет элемент на страницу.
+  */
+  var setReviewElement = function(review, container) {
+    var element = getReviewElement(review);
+    container.appendChild(element);
+  };
+
+  /*
   * Функция отрисовки отзывов, которая в цикле
   * запускает функцию добавления отзыва на страницу
   */
@@ -108,7 +115,7 @@
     var to = from + PAGE_SIZE;
 
     loadedReviews.slice(from, to).forEach(function(review) {
-      getReviewElement(review, reviewsContainer);
+      setReviewElement(review, reviewsContainer);
     });
   };
 
