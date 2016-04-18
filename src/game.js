@@ -256,6 +256,7 @@
     this._onKeyDown = this._onKeyDown.bind(this);
     this._onKeyUp = this._onKeyUp.bind(this);
     this._pauseListener = this._pauseListener.bind(this);
+    this._onScroll = this._onScroll.bind(this);
   };
 
   Game.prototype = {
@@ -703,16 +704,66 @@
       }
     },
 
+    /**
+     * Вспомогательная функция.
+     * Проверяет виден ли блок на экране
+     */
+    isElementVisible: function(target) {
+      var targetPosition = target.getBoundingClientRect();
+      if (targetPosition.bottom > 0) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+
+    /**
+     * Смещение облаков на скролл сртаницы.
+     */
+    cloudsMove: function() {
+      var clouds = document.querySelector('.header-clouds');
+      var cloudsPosition = clouds.getBoundingClientRect();
+      var isCloudsVisible = this.isElementVisible(clouds);
+
+      if (isCloudsVisible) {
+        clouds.style.left = cloudsPosition.top + 'px';
+      }
+    },
+
+    /**
+     * Постановка игры на паузу, если блок с игрой не виден.
+     */
+    gameOutOfView: function() {
+      var gameBlock = document.querySelector('.demo');
+      var isGameVisible = this.isElementVisible(gameBlock);
+
+      if (!isGameVisible) {
+        game.setGameStatus(Game.Verdict.PAUSE);
+      }
+    },
+
+    /**
+     * Обработка события скролла объекта window
+     * @param {ScrollEvent} evt [description]
+     * @private
+     */
+    _onScroll: function() {
+      this.cloudsMove();
+      this.gameOutOfView();
+    },
+
     /** @private */
     _initializeGameListeners: function() {
       window.addEventListener('keydown', this._onKeyDown);
       window.addEventListener('keyup', this._onKeyUp);
+      window.addEventListener('scroll', this._onScroll);
     },
 
     /** @private */
     _removeGameListeners: function() {
       window.removeEventListener('keydown', this._onKeyDown);
       window.removeEventListener('keyup', this._onKeyUp);
+      window.addEventListener('scroll', this._onScroll);
     }
   };
 
