@@ -256,7 +256,6 @@
     this._onKeyDown = this._onKeyDown.bind(this);
     this._onKeyUp = this._onKeyUp.bind(this);
     this._pauseListener = this._pauseListener.bind(this);
-    this._onScroll = this._onScroll.bind(this);
   };
 
   Game.prototype = {
@@ -704,66 +703,16 @@
       }
     },
 
-    /**
-     * Вспомогательная функция.
-     * Проверяет виден ли блок на экране
-     */
-    isElementVisible: function(target) {
-      var targetPosition = target.getBoundingClientRect();
-      if (targetPosition.bottom > 0) {
-        return true;
-      } else {
-        return false;
-      }
-    },
-
-    /**
-     * Смещение облаков на скролл сртаницы.
-     */
-    cloudsMove: function() {
-      var clouds = document.querySelector('.header-clouds');
-      var cloudsPosition = clouds.getBoundingClientRect();
-      var isCloudsVisible = this.isElementVisible(clouds);
-
-      if (isCloudsVisible) {
-        clouds.style.left = cloudsPosition.top + 'px';
-      }
-    },
-
-    /**
-     * Постановка игры на паузу, если блок с игрой не виден.
-     */
-    gameOutOfView: function() {
-      var gameBlock = document.querySelector('.demo');
-      var isGameVisible = this.isElementVisible(gameBlock);
-
-      if (!isGameVisible) {
-        game.setGameStatus(Game.Verdict.PAUSE);
-      }
-    },
-
-    /**
-     * Обработка события скролла объекта window
-     * @param {ScrollEvent} evt [description]
-     * @private
-     */
-    _onScroll: function() {
-      this.cloudsMove();
-      this.gameOutOfView();
-    },
-
     /** @private */
     _initializeGameListeners: function() {
       window.addEventListener('keydown', this._onKeyDown);
       window.addEventListener('keyup', this._onKeyUp);
-      window.addEventListener('scroll', this._onScroll);
     },
 
     /** @private */
     _removeGameListeners: function() {
       window.removeEventListener('keydown', this._onKeyDown);
       window.removeEventListener('keyup', this._onKeyUp);
-      window.addEventListener('scroll', this._onScroll);
     }
   };
 
@@ -771,6 +720,69 @@
   window.Game.Verdict = Verdict;
 
   var game = new Game(document.querySelector('.demo'));
+  var gameBlock = document.querySelector('.demo');
+  var clouds = document.querySelector('.header-clouds');
+
   game.initializeLevelAndStart();
   game.setGameStatus(window.Game.Verdict.INTRO);
+
+  /**
+   * Вспомогательная функция.
+   * Проверяет виден ли блок на экране
+   */
+  var isElementVisible = function(target) {
+    var targetPosition = target.getBoundingClientRect();
+    return targetPosition.bottom > 0;
+  };
+
+  /**
+   * Вспомогательная функция. Троттлинг (пропуск кадров)
+   */
+  var throttle = function(callback, limit) {
+    var wait = false;
+    return function() {
+      if (!wait) {
+        callback.call();
+        wait = true;
+        setTimeout(function() {
+          wait = false;
+        }, limit);
+      }
+    };
+  };
+
+  /**
+   * Смещение элемента на скролл сртаницы. Параллакс эффект
+   */
+  var elementMove = function(element) {
+    var elementPosition = element.getBoundingClientRect();
+    element.style.left = elementPosition.top + 'px';
+  };
+
+  /**
+   * Функция, которая запускае параллакс эффект
+   * при условии, что элемент находится в области видимости.
+   */
+  var enableParallax = function(target) {
+    var isTargetVisible = isElementVisible(target);
+    if (isTargetVisible) {
+      window.addEventListener('scroll', elementMove(target));
+    }
+  };
+
+  /*
+   * Постановка игры на паузу, если блок с игрой не виден.
+   */
+  var gamePaused = function() {
+    var isGameVisible = isElementVisible(gameBlock);
+    if (!isGameVisible) {
+      game.setGameStatus(Game.Verdict.PAUSE);
+    }
+  };
+
+  window.addEventListener('scroll', function() {
+    throttle(gamePaused(), 100);
+    throttle(enableParallax(clouds), 100);
+  });
+
 })();
