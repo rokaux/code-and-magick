@@ -766,7 +766,7 @@
   var enableParallax = function(target) {
     var isTargetVisible = isElementVisible(target);
     if (isTargetVisible) {
-      window.addEventListener('scroll', elementMove(target));
+      elementMove(target);
     }
   };
 
