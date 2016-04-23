@@ -1,6 +1,11 @@
+/** @fileoverview Модуль игры */
+
 'use strict';
 
 (function() {
+
+  var utils = require('./utils');
+
   /**
    * @const
    * @type {number}
@@ -727,46 +732,13 @@
   game.setGameStatus(window.Game.Verdict.INTRO);
 
   /**
-   * Вспомогательная функция.
-   * Проверяет виден ли блок на экране
-   */
-  var isElementVisible = function(target) {
-    var targetPosition = target.getBoundingClientRect();
-    return targetPosition.bottom > 0;
-  };
-
-  /**
-   * Вспомогательная функция. Троттлинг (пропуск кадров)
-   */
-  var throttle = function(callback, limit) {
-    var wait = false;
-    return function() {
-      if (!wait) {
-        callback.call();
-        wait = true;
-        setTimeout(function() {
-          wait = false;
-        }, limit);
-      }
-    };
-  };
-
-  /**
-   * Смещение элемента на скролл сртаницы. Параллакс эффект
-   */
-  var elementMove = function(element) {
-    var elementPosition = element.getBoundingClientRect();
-    element.style.left = elementPosition.top + 'px';
-  };
-
-  /**
    * Функция, которая запускае параллакс эффект
    * при условии, что элемент находится в области видимости.
    */
   var enableParallax = function(target) {
-    var isTargetVisible = isElementVisible(target);
+    var isTargetVisible = utils.isElementVisible(target);
     if (isTargetVisible) {
-      elementMove(target);
+      utils.elementMove(target);
     }
   };
 
@@ -774,15 +746,15 @@
    * Постановка игры на паузу, если блок с игрой не виден.
    */
   var gamePaused = function() {
-    var isGameVisible = isElementVisible(gameBlock);
+    var isGameVisible = utils.isElementVisible(gameBlock);
     if (!isGameVisible) {
       game.setGameStatus(Game.Verdict.PAUSE);
     }
   };
 
   window.addEventListener('scroll', function() {
-    throttle(gamePaused(), 100);
-    throttle(enableParallax(clouds), 100);
+    utils.throttle(gamePaused(), 100);
+    utils.throttle(enableParallax(clouds), 100);
   });
 
 })();
