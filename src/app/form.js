@@ -1,6 +1,11 @@
+/** @fileoverview Модуль валидации формы отправки отзыва и сохранения значений полей формы в cookies */
+
 'use strict';
 
 (function() {
+
+  var utils = require('./utils');
+
   var MIN_RATE = 3;
 
   var formContainer = document.querySelector('.overlay-container');
@@ -45,30 +50,30 @@
       reviewName.onchange = function() {
         reviewNameError.textContent = '';
       };
-      reviewNameLabel.classList.add('invisible');
+      utils.hideElement(reviewNameLabel);
     } else {
       reviewName.onchange = function() {
         reviewNameError.textContent = this.validationMessage;
       };
-      reviewNameLabel.classList.remove('invisible');
+      utils.showElement(reviewNameLabel);
     }
     if(reviewTextStatus) {
       reviewText.onchange = function() {
         reviewTextError.textContent = '';
       };
-      reviewTextLabel.classList.add('invisible');
+      utils.hideElement(reviewTextLabel);
     } else {
       reviewText.onchange = function() {
         reviewTextError.textContent = this.validationMessage;
       };
-      reviewTextLabel.classList.remove('invisible');
+      utils.showElement(reviewTextLabel);
     }
     if(reviewNameStatus && reviewTextStatus) {
-      reviewLabels.classList.add('invisible');
+      utils.hideElement(reviewLabels);
       reviewSubmit.disabled = false;
     } else {
       reviewSubmit.disabled = true;
-      reviewLabels.classList.remove('invisible');
+      utils.showElement(reviewLabels);
     }
   };
   /*
@@ -126,12 +131,12 @@
 
   formOpenButton.onclick = function(evt) {
     evt.preventDefault();
-    formContainer.classList.remove('invisible');
+    utils.showElement(formContainer);
   };
 
   formCloseButton.onclick = function(evt) {
     evt.preventDefault();
-    formContainer.classList.add('invisible');
+    utils.hideElement(formContainer);
   };
 
 })();
