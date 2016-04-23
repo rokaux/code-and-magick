@@ -1,16 +1,23 @@
+/** @fileoverview Основной файл, который собирает все зависимости */
+
 'use strict';
 
 /**
- * Подключение файла form.js
+ * Вспомогательные методы и функции: utils.js
  */
-require('./form');
+require('./app/utils');
 
 /**
- * Подключение файла game.js
+ * Модуль валидации формы отзывов: form.js
  */
-require('./game');
+require('./app/form');
 
 /**
- * Подключение файла reviews.js
+ * Основной модуль игры: game.js
  */
-require('./reviews');
+require('./app/game');
+
+/**
+ * Модуль загрузки и вывода отзывов: reviews.js
+ */
+require('./app/reviews');

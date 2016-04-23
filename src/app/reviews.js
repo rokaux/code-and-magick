@@ -1,6 +1,10 @@
+/** @fileoverview Модуль, который скачивает с сервера данные, добавляет данные в шаблон отзыва и отрисовывает отзывы на страницу. */
+
 'use strict';
 
 (function() {
+
+  var utils = require('./utils');
 
   var reviewsSection = document.querySelector('.reviews');
   var reviewsFilters = reviewsSection.querySelector('.reviews-filter');
@@ -21,7 +25,7 @@
   /*
   * Скрываем филтры до загрузки списка отзывов
   */
-  reviewsFilters.classList.add('invisible');
+  utils.hideElement(reviewsFilters);
 
   /*
   * Клонируем шаблонный элемент, используя свойство content
@@ -184,7 +188,7 @@
   * и добавляет обработчик клика по фильтру
   */
   var applyFiltration = function() {
-    reviewsFilters.classList.remove('invisible');
+    utils.showElement(reviewsFilters);
     reviewsFilters.addEventListener('click', function(evt) {
       if (evt.target.hasAttribute('name')) {
         applyFilter(evt.target.id);
@@ -235,7 +239,7 @@
   * Подгружаем список отзывов постранично
   */
   var loadMoreReviews = function() {
-    loadMoreBtn.classList.remove('invisible');
+    utils.showElement(loadMoreBtn);
     loadMoreBtn.addEventListener('click', function() {
       if (isNextPageAvailable(reviews, pageNumber, PAGE_SIZE)) {
         pageNumber++;
