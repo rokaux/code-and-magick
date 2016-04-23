@@ -720,6 +720,69 @@
   window.Game.Verdict = Verdict;
 
   var game = new Game(document.querySelector('.demo'));
+  var gameBlock = document.querySelector('.demo');
+  var clouds = document.querySelector('.header-clouds');
+
   game.initializeLevelAndStart();
   game.setGameStatus(window.Game.Verdict.INTRO);
+
+  /**
+   * Вспомогательная функция.
+   * Проверяет виден ли блок на экране
+   */
+  var isElementVisible = function(target) {
+    var targetPosition = target.getBoundingClientRect();
+    return targetPosition.bottom > 0;
+  };
+
+  /**
+   * Вспомогательная функция. Троттлинг (пропуск кадров)
+   */
+  var throttle = function(callback, limit) {
+    var wait = false;
+    return function() {
+      if (!wait) {
+        callback.call();
+        wait = true;
+        setTimeout(function() {
+          wait = false;
+        }, limit);
+      }
+    };
+  };
+
+  /**
+   * Смещение элемента на скролл сртаницы. Параллакс эффект
+   */
+  var elementMove = function(element) {
+    var elementPosition = element.getBoundingClientRect();
+    element.style.left = elementPosition.top + 'px';
+  };
+
+  /**
+   * Функция, которая запускае параллакс эффект
+   * при условии, что элемент находится в области видимости.
+   */
+  var enableParallax = function(target) {
+    var isTargetVisible = isElementVisible(target);
+    if (isTargetVisible) {
+      elementMove(target);
+    }
+  };
+
+  /*
+   * Постановка игры на паузу, если блок с игрой не виден.
+   */
+  var gamePaused = function() {
+    var isGameVisible = isElementVisible(gameBlock);
+    if (!isGameVisible) {
+      game.setGameStatus(Game.Verdict.PAUSE);
+    }
+  };
+
+  window.addEventListener('scroll', function() {
+    throttle(gamePaused(), 100);
+    throttle(enableParallax(clouds), 100);
+  });
+
 })();
