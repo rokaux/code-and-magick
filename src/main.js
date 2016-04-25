@@ -18,6 +18,11 @@ require('./app/form');
 require('./app/game');
 
 /**
+ * Модуль галереи: gallery.js
+ */
+require('./app/gallery');
+
+/**
  * Модуль загрузки и вывода отзывов: reviews.js
  */
 require('./app/reviews');
