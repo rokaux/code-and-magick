@@ -27,11 +27,13 @@ var gallery = require('./app/gallery');
  */
 require('./app/reviews');
 
-
 var photoGallery = document.querySelector('.photogallery');
 var photosList = photoGallery.querySelectorAll('img');
 
-gallery.savedPhotoList(photosList);
+/**
+ * Инициализируем функцию сохранения списка фотографий
+ */
+gallery.savePhotoList(photosList);
 
 /**
  * Инициализируем обработчик события клика по превью галереи
