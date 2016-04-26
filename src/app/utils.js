@@ -4,6 +4,7 @@
 
 /**
  * Показываем элемент
+ * @param {object} DOM Element to show
  */
 function showElement(element) {
   element.classList.remove('invisible');
@@ -11,6 +12,7 @@ function showElement(element) {
 
 /**
  * Скрываем элемент
+ * @param {object} DOM Element to hide
  */
 function hideElement(element) {
   element.classList.add('invisible');
@@ -34,6 +36,7 @@ function throttle(callback, limit) {
 
 /**
  * Метод, который проверяет виден ли блок на экране
+ * @param {object} DOM Element to check visibility of
  */
 function isElementVisible(target) {
   var targetPosition = target.getBoundingClientRect();
@@ -42,6 +45,7 @@ function isElementVisible(target) {
 
 /**
  * Смещение элемента на скролл сртаницы. Параллакс эффект
+ * @param {object} DOM Element to move
  */
 function elementMove(element) {
   var elementPosition = element.getBoundingClientRect();
