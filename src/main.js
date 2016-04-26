@@ -20,9 +20,25 @@ require('./app/game');
 /**
  * Модуль галереи: gallery.js
  */
-require('./app/gallery');
+var gallery = require('./app/gallery');
 
 /**
  * Модуль загрузки и вывода отзывов: reviews.js
  */
 require('./app/reviews');
+
+
+var photoGallery = document.querySelector('.photogallery');
+var photosList = photoGallery.querySelectorAll('img');
+
+gallery.savedPhotoList(photosList);
+
+/**
+ * Инициализируем обработчик события клика по превью галереи
+ */
+photoGallery.addEventListener('click', function(evt) {
+  if (evt.target.parentNode.classList.contains('photogallery-image')) {
+    evt.preventDefault();
+    gallery.showGallery(evt.target);
+  }
+});

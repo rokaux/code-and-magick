@@ -12,45 +12,59 @@
   var photoPrev = galleryOverlay.querySelector('.overlay-gallery-control-left');
   var photoNext = galleryOverlay.querySelector('.overlay-gallery-control-right');
   var currentPhotoNumber = galleryOverlay.querySelector('.preview-number-current');
-
-  var photoGallery = document.querySelector('.photogallery');
-  var photosList = photoGallery.querySelectorAll('img');
   var previewImg = new Image();
   var photoNumber = 0;
+  var savedPhotos;
+
+  /**
+   * Сохраняем список фотографий
+   * @param {NodeList} photos - List of images
+   */
+  function savedPhotoList(photos) {
+    savedPhotos = photos;
+  }
 
   /**
    * Добавляем всем фотографиям порядковый id.
    * Упрощает работу со списком фото в дальнейшем.
-   * @param {NodeList} images
+   * @param {NodeList} photos - List of images
    */
   function setPhotoID(photos) {
     for(var i = 0; i < photos.length; i++) {
-      photos[i].id = i + 1;
+      photos[i].id = i;
     }
   }
-  setPhotoID(photosList);
+  setPhotoID(savedPhotos);
+
+  /**
+   * Добавляет элементу порядковый номер текущей фотографии.
+   * @param {HTMLElement} element - Target html element
+   * @param {number} - current photo index in NodeList
+   */
+  function setCurrentNumber(element, number) {
+    element.textContent = parseInt(number, 10) + 1;
+  }
 
   /**
    * Показывает фотографию по ее индексу в массиве
-   * @param {number}
+   * @param {number} - Index of current photo
    */
   function setActivePhoto(index) {
-    previewImg.src = photosList[index].src;
+    previewImg.src = savedPhotos[index].src;
   }
 
   /**
    * Показывает блок галереи и устанавливает активную картинку,
    * добавляет обработчики событий
-   * @param {number}
+   * @param {HTMLElement} photo - current clicked photo
    */
   function showGallery(photo) {
-    photoNumber = photo.id - 1;
+    photoNumber = photo.id;
 
     previewImg.classList.add('preview-img');
     photoPreview.appendChild(previewImg);
-
     setActivePhoto(photoNumber);
-    currentPhotoNumber.textContent = photo.id;
+    setCurrentNumber(currentPhotoNumber, photoNumber);
 
     galleryClose.addEventListener('click', _onCloseClick);
     document.addEventListener('keydown', _onDocumentKeyDown);
@@ -81,7 +95,7 @@
     if(photoNumber > 0) {
       photoNumber--;
       setActivePhoto(photoNumber);
-      currentPhotoNumber.textContent = photoNumber + 1;
+      setCurrentNumber(currentPhotoNumber, photoNumber);
     }
   }
 
@@ -89,10 +103,10 @@
    * Функция показа следующей фотографии
    */
   function showNextPhoto() {
-    if(photoNumber < (photosList.length - 1)) {
+    if(photoNumber < (savedPhotos.length - 1)) {
       photoNumber++;
       setActivePhoto(photoNumber);
-      currentPhotoNumber.textContent = photoNumber + 1;
+      setCurrentNumber(currentPhotoNumber, photoNumber);
     }
   }
 
@@ -129,13 +143,12 @@
   }
 
   /**
-   * Инициализируем обработчик события клика по превью галереи
+   * Экспортируем методы
    */
-  photoGallery.addEventListener('click', function(evt) {
-    if (evt.target.parentNode.classList.contains('photogallery-image')) {
-      evt.preventDefault();
-      showGallery(evt.target);
-    }
-  });
+  module.exports = {
+    savedPhotoList: savedPhotoList,
+    setPhotoID: setPhotoID,
+    showGallery: showGallery
+  };
 
 })();
