@@ -23,9 +23,11 @@ require('./app/game');
 var gallery = require('./app/gallery');
 
 /**
- * Модуль загрузки и вывода отзывов: reviews.js
+ * Модуль отрисовки отзывов на старнице с фильтрацией
  */
-require('./app/reviews');
+require('./app/reviews/render-reviews');
+
+
 
 var photoGallery = document.querySelector('.photogallery');
 var photosList = photoGallery.querySelectorAll('img');
