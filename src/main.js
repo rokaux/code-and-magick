@@ -20,7 +20,7 @@ require('./app/game');
 /**
  * Модуль галереи: gallery.js
  */
-var gallery = require('./app/gallery');
+var Gallery = require('./app/gallery');
 
 /**
  * Модуль отрисовки отзывов на старнице с фильтрацией
@@ -28,14 +28,9 @@ var gallery = require('./app/gallery');
 require('./app/reviews/render-reviews');
 
 
-
 var photoGallery = document.querySelector('.photogallery');
 var photosList = photoGallery.querySelectorAll('img');
-
-/**
- * Инициализируем функцию сохранения списка фотографий
- */
-gallery.savePhotoList(photosList);
+var gallery = new Gallery(photosList);
 
 /**
  * Инициализируем обработчик события клика по превью галереи
@@ -43,6 +38,6 @@ gallery.savePhotoList(photosList);
 photoGallery.addEventListener('click', function(evt) {
   if (evt.target.parentNode.classList.contains('photogallery-image')) {
     evt.preventDefault();
-    gallery.showGallery(evt.target);
+    gallery.show(evt.target);
   }
 });
