@@ -2,7 +2,6 @@
 
 'use strict';
 
-var FilterType = require('../filters/filter-type');
 var filter = require('../filters/filter');
 var utils = require('../utils');
 var Review = require('./review');
@@ -26,12 +25,6 @@ var REVIEWS_LOAD_TIMEOUT = 5000;
 var REVIEWS_LOAD_URL = '//o0.github.io/assets/json/reviews.json';
 
 /**
-* Константа - фильтр по умолчанию
-* @constant {Filter}
-*/
-var DEFAULT_FILTER = FilterType.ALL;
-
-/**
 * Константа - количество отзывов на страницу
 * @constant {number}
 */
@@ -49,6 +42,12 @@ var filteredReviews = [];
 * @type {number}
 */
 var pageNumber = 0;
+
+/**
+* Последний примененный фильтр. Значение берется из localStorage.
+* @type {Filter}
+*/
+var lastFilter = localStorage.getItem('lastFilter');
 
 /*
 * Скрываем филтры до загрузки списка отзывов
@@ -92,18 +91,23 @@ var renderReviews = function(loadedReviews, page, reset) {
 
 /**
 * Функция в зависимости от переданного параметра (id)
-* фильтрует список отзывов
+* фильтрует список отзывов и сохраняет последний активный фильтр в localStorage
 * @param {FilterType} filterType
 */
 var applyFilter = function(filterType) {
+  localStorage.setItem('lastFilter', filterType);
+
+  var actviFilter = reviewsFilters.querySelector('#' + filterType);
+  actviFilter.setAttribute('checked', true);
   filteredReviews = filter(reviews, filterType);
   pageNumber = 0;
   renderReviews(filteredReviews, pageNumber, true);
 };
 
 /*
-* Функция показывает блок с фильтрами
-* и добавляет обработчик клика по фильтру
+* Функция показывает блок с фильтрами,
+* добавляет обработчик клика по фильтру
+* и сохраняет последний примененный фильтр в localStorage
 */
 var applyFiltration = function() {
   utils.showElement(reviewsFilters);
@@ -146,8 +150,11 @@ var getReviews = function(callback) {
   reviewsSection.classList.add('reviews-list-loading');
 };
 
-/*
+/**
 * Проверяем есть ли сдледующая страница
+* @param {Array} reviewsList
+* @param {number} page
+* @param {number} pageSize
 */
 var isNextPageAvailable = function(reviewsList, page, pageSize) {
   return page < Math.floor(reviewsList.length / pageSize);
@@ -169,6 +176,6 @@ var loadMoreReviews = function() {
 getReviews(function(loadedReviews) {
   reviews = loadedReviews;
   applyFiltration();
-  applyFilter(DEFAULT_FILTER);
+  applyFilter(lastFilter);
   loadMoreReviews();
 });
