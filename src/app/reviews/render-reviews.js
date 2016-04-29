@@ -2,6 +2,7 @@
 
 'use strict';
 
+var FilterType = require('../filters/filter-type');
 var filter = require('../filters/filter');
 var utils = require('../utils');
 var Review = require('./review');
@@ -31,6 +32,12 @@ var REVIEWS_LOAD_URL = '//o0.github.io/assets/json/reviews.json';
 var PAGE_SIZE = 3;
 
 /**
+* Константа - фильтр по умолчанию
+* @constant {Filter}
+*/
+var DEFAULT_FILTER = FilterType.ALL;
+
+/**
  * Cостояние списка отзывов с учетом примененного фильтра.
  * Используется для отрисовки.
  * @type {Array}
@@ -47,7 +54,7 @@ var pageNumber = 0;
 * Последний примененный фильтр. Значение берется из localStorage.
 * @type {Filter}
 */
-var lastFilter = localStorage.getItem('lastFilter');
+var lastFilter = localStorage.getItem('lastFilter') || DEFAULT_FILTER;
 
 /*
 * Скрываем филтры до загрузки списка отзывов
