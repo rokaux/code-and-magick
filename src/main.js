@@ -20,7 +20,7 @@ require('./app/game');
 /**
  * Модуль галереи: gallery.js
  */
-var Gallery = require('./app/gallery');
+require('./app/gallery');
 
 /**
  * Модуль отрисовки отзывов на старнице с фильтрацией
@@ -29,15 +29,15 @@ require('./app/reviews/render-reviews');
 
 
 var photoGallery = document.querySelector('.photogallery');
-var photosList = photoGallery.querySelectorAll('img');
-var gallery = new Gallery(photosList);
 
 /**
- * Инициализируем обработчик события клика по превью галереи
+ * Обработчик события клика по превью галереи
  */
 photoGallery.addEventListener('click', function(evt) {
   if (evt.target.parentNode.classList.contains('photogallery-image')) {
     evt.preventDefault();
-    gallery.show(evt.target);
+
+    var imgHash = '#photo/' + evt.target.getAttribute('src');
+    location.hash = imgHash;
   }
 });
