@@ -3,7 +3,10 @@
 'use strict';
 
 var utils = require('./utils');
-
+/**
+ * Конструктор галереи
+ * @constructor
+ */
 var Gallery = function(photoList) {
   var self = this;
   var galleryOverlay = document.querySelector('.overlay-gallery');
@@ -14,6 +17,8 @@ var Gallery = function(photoList) {
   var currentPhotoNumber = galleryOverlay.querySelector('.preview-number-current');
   var previewImg = new Image();
   var photoNumber = 0;
+  var hashRegExp = /#photo\/(\S+)/;
+  var photoSrcRegExp = /(img\/\S+)/;
 
   /**
    * Метод добавляет всем фотографиям порядковый id.
@@ -37,24 +42,30 @@ var Gallery = function(photoList) {
 
   /**
    * Метод показывает фотографию по ее индексу в массиве
-   * @param {number} - Index of current photo
+   * @param {number || string} - Index of current photo
    */
-  this.setActivePhoto = function(index) {
-    previewImg.src = photoList[index].src;
+  this.setActivePhoto = function(photo) {
+    if(typeof photo === 'string') {
+      var photoSrc = photo.match(photoSrcRegExp)[1];
+      previewImg.src = photoSrc;
+      photoNumber = document.querySelector('img[src="' + photoSrc + '"]').id;
+    } else {
+      photoNumber = photo.id;
+      previewImg.src = photoList[photoNumber].src;
+    }
   };
 
   /**
    * Метод показывает блок галереи и устанавливает активную картинку,
    * добавляет обработчики событий
-   * @param {HTMLElement} photo - current clicked photo
+   * @param {HTMLElement || srting} photo - current clicked photo or link to current photo
    */
-  this.show = function(photo) {
-    photoNumber = photo.id;
+  this.show = function(target) {
+    self.setActivePhoto(target);
+    self.setCurrentNumber(currentPhotoNumber, photoNumber);
 
     previewImg.classList.add('preview-img');
     photoPreview.appendChild(previewImg);
-    self.setActivePhoto(photoNumber);
-    self.setCurrentNumber(currentPhotoNumber, photoNumber);
 
     galleryClose.addEventListener('click', self._onCloseClick);
     document.addEventListener('keydown', self._onDocumentKeyDown);
@@ -65,12 +76,14 @@ var Gallery = function(photoList) {
   };
 
   /**
-   * Метод скрывает блок галереи, удаляет динамически созданную разметку
-   * и удаляет все обработчики событий
+   * Метод скрывает блок галереи, удаляет динамически созданную разметку,
+   * чистит хэш адресной строки и удаляет все обработчики событий
    */
   this.hide = function() {
     utils.hideElement(galleryOverlay);
     photoPreview.removeChild(previewImg);
+
+    history.pushState('', document.title, window.location.pathname);
 
     galleryClose.removeEventListener('click', self._onCloseClick);
     document.removeEventListener('keydown', self._onDocumentKeyDown);
@@ -79,23 +92,23 @@ var Gallery = function(photoList) {
   };
 
   /**
-   * Метод показа предыдущей фотографии
+   * Предыдущая фотографии
    */
-  this.showPrevPhoto = function() {
+  this.prevPhoto = function() {
     if(photoNumber > 0) {
       photoNumber--;
-      self.setActivePhoto(photoNumber);
+      location.hash = '#photo/' + photoList[photoNumber].src.match(photoSrcRegExp)[1];
       self.setCurrentNumber(currentPhotoNumber, photoNumber);
     }
   };
 
   /**
-   * Метод показа следующей фотографии
+   * Следующая фотография
    */
-  this.showNextPhoto = function() {
+  this.nextPhoto = function() {
     if(photoNumber < (photoList.length - 1)) {
       photoNumber++;
-      self.setActivePhoto(photoNumber);
+      location.hash = '#photo/' + photoList[photoNumber].src.match(photoSrcRegExp)[1];
       self.setCurrentNumber(currentPhotoNumber, photoNumber);
     }
   };
@@ -122,15 +135,28 @@ var Gallery = function(photoList) {
    * Обработчик события: нжатия левой стрелки
    */
   this._onPrevClick = function() {
-    self.showPrevPhoto();
+    self.prevPhoto();
   };
 
   /**
    * Обработчик события: нжатия правой стрелки
    */
   this._onNextClick = function() {
-    self.showNextPhoto();
+    self.nextPhoto();
   };
+
+  /**
+   * Обработчик события: изменения хэша ад
+   */
+  this._onHashChange = function() {
+    if(location.hash.match(hashRegExp) !== null) {
+      self.show(location.hash);
+    }
+  };
+  this._onHashChange();
+
+  window.addEventListener('hashchange', this._onHashChange);
+
 };
 
 module.exports = Gallery;
