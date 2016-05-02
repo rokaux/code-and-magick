@@ -159,4 +159,8 @@ var Gallery = function(photoList) {
 
 };
 
-module.exports = Gallery;
+var photoGallery = document.querySelector('.photogallery');
+var photosList = photoGallery.querySelectorAll('img');
+var gallery = new Gallery(photosList);
+
+module.exports = gallery;
